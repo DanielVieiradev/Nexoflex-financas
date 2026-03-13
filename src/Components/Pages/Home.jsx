@@ -1,102 +1,78 @@
 import { Link } from "react-router-dom";
 import styles from "./Home.module.css";
-import Container from "../layout/Container";
-import LinkButton from "../layout/Linkbutton";
+import { FiTrendingUp, FiTarget, FiShield, FiArrowRight } from "react-icons/fi";
+import heroImg from "../../img/home2.png"; // Usando imagem existente ou uma representação
 
 function Home() {
   return (
-    <>
-      <section className={styles.hero}>
-        <div className={styles.overlay}></div>
-
+    <div className={styles.landingContainer}>
+      
+      {/* Hero Section */}
+      <section className={styles.heroSection}>
         <div className={styles.heroContent}>
-          <h1>
-            Nexoflex, o sistema inteligente para
-            Gestão de Projetos e Serviços.
-          </h1>
-
+          <span className={styles.badge}>Seu futuro começa agora</span>
+          <h1>Assuma o controle do seu dinheiro.</h1>
           <p>
-            Controle, organização e praticidade na hora de acompanhar
-            o crescimento dos seus projetos — de forma rápida e segura.
+            O Nexoflex é o seu parceiro digital para não apenas rastrear despesas, mas entender como você pode guardar mais. Motive-se a criar sua reserva e alcançar seus sonhos.
           </p>
-
-          <LinkButton to="/Projetos/Criar" text="Começar Agora" />
-
-          <small>*Sem burocracia. Simples, rápido e flexível.</small>
+          
+          <div className={styles.heroButtons}>
+            <Link to="/Projetos" className={styles.primaryButton}>
+              Ver Meu Fluxo de Caixa <FiArrowRight />
+            </Link>
+            <Link to="/empresa" className={styles.secondaryButton}>
+              Acessar Meus Objetivos
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className={styles.leadersSection}>
-        <Container>
+      {/* Motivational Stats / Features */}
+      <section className={styles.featuresSection}>
+        <div className={styles.sectionHeader}>
+          <h2>Por que guardar com o Nexoflex?</h2>
+          <p>Organizar para sobrar. Veja como nosso sistema ajuda você a prosperar todos os meses.</p>
+        </div>
 
-          <div className={styles.leadersHeader}>
-            <h2>
-              Por que o Nexoflex é a{" "}
-              <span className={styles.highlight}>escolha dos Líderes?</span>
-            </h2>
-
-            <p>
-              Controle, organização e praticidade hora a hora. Acompanhe o
-              crescimento dos seus projetos de forma rápida e segura.
-            </p>
+        <div className={styles.featureCards}>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <FiTrendingUp />
+            </div>
+            <h3>Visualize seu crescimento</h3>
+            <p>Acompanhe gráficos e extratos que mostram exatamente para onde seu dinheiro vai. Descubra onde cortar gastos inúteis.</p>
           </div>
 
-          <div className={styles.cardsGrid}>
-
-            <div className={styles.whiteCard}>
-              <div className={styles.cardIcon}>
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
-                  <path d="M20 7H4C2.89543 7 2 7.89543 2 9V19C2 20.1046 2.89543 21 4 21H20C21.1046 21 22 20.1046 22 19V9C22 7.89543 21.1046 7 20 7Z" stroke="#0f8a56" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M16 7V5C16 3.89543 15.1046 3 14 3H10C8.89543 3 8 3.89543 8 5V7" stroke="#0f8a56" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 13H13" stroke="#0f8a56" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M12 11V15" stroke="#0f8a56" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M18 15V12" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M22 15V10" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <h3>Visão Financeira em Tempo Real</h3>
-              <p>
-                Visualize o fluxo de caixa do projeto instantaneamente.
-                Cada serviço adicionado atualiza automaticamente o saldo restante.
-              </p>
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <FiTarget />
             </div>
-
-            <div className={styles.whiteCard}>
-              <div className={styles.cardIcon}>
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="13" r="8" stroke="#0f8a56" strokeWidth="1.5"/>
-                  <path d="M12 5V2" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M10 2H14" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M12 9V13L15 15" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M22 13H20" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M4 13H2" stroke="#0f8a56" strokeWidth="2" strokeLinecap="round"/>
-                </svg>
-              </div>
-              <h3>Gestão de Tarefas Otimizada</h3>
-              <p>
-                Controle a organização dos serviços de cada projeto.
-                Edite, exclua e categorize despesas com poucos cliques.
-              </p>
-            </div>
-
-            <div className={styles.whiteCard}>
-              <div className={styles.cardIcon}>
-                <svg width="60" height="60" viewBox="0 0 24 24" fill="none">
-                  <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="#0f8a56" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M9 12L11 14L15 10" stroke="#0f8a56" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <h3>Segurança de Nível Empresarial</h3>
-              <p>
-                Seus dados de orçamento e estrutura de projetos estão seguros.
-                Foco total na confidencialidade do seu negócio.
-              </p>
-            </div>
-
+            <h3>Acelere seus sonhos</h3>
+            <p>Crie objetivos financeiros e acompanhe cada centavo poupado até a linha de chegada. Ver as barras subirem é viciante.</p>
           </div>
-        </Container>
+
+          <div className={styles.featureCard}>
+            <div className={styles.featureIcon}>
+              <FiShield />
+            </div>
+            <h3>Liberdade e Segurança</h3>
+            <p>Ter uma reserva de emergência cria paz mental. Comece hoje a construir seu escudo financeiro contra imprevistos.</p>
+          </div>
+        </div>
       </section>
-    </>
+
+      {/* CTA final mobile amigável */}
+      <section className={styles.ctaSection}>
+        <div className={styles.ctaCard}>
+          <h2>A melhor hora para começar foi ontem. A segunda melhor é agora.</h2>
+          <p>Pare de adiar sua saúde financeira.</p>
+          <Link to="/Projetos" className={styles.primaryButtonLarge}>
+            Começar Agora, de Graça
+          </Link>
+        </div>
+      </section>
+      
+    </div>
   );
 }
 

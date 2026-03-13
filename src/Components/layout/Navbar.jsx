@@ -53,10 +53,10 @@ function Navbar() {
             <Link to="/" onClick={closeMenu}>Home</Link>
           </li>
           <li className={styles.item}>
-            <Link to="/empresa" onClick={closeMenu}>Empresa</Link>
+            <Link to="/empresa" onClick={closeMenu}>Objetivos</Link>
           </li>
           <li className={styles.item}>
-            <Link to="/Projetos" onClick={closeMenu}>Projetos</Link>
+            <Link to="/Projetos" onClick={closeMenu}>Fluxo de Caixa</Link>
           </li>
           <li className={styles.item}>
             <Link to="/contato" onClick={closeMenu}>Contato</Link>
