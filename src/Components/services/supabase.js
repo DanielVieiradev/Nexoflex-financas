@@ -1,38 +1,36 @@
-import { createClient } from "@supabase/supabase-js";
+// Arquivo inteiramente "mockado" (simulado) para que não dê erro na Vercel
+// Agora que não estamos mais usando o Supabase no MVP!
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = {
+    from: () => ({
+        select: () => ({
+            eq: () => ({
+                single: () => ({ data: null, error: null })
+            }),
+            order: () => ({ data: [], error: null })
+        }),
+        insert: () => ({ data: null, error: null }),
+        update: () => ({
+            eq: () => ({ select: () => ({ data: null, error: null }) })
+        }),
+        delete: () => ({
+            eq: () => ({ data: null, error: null })
+        })
+    })
+};
 
 export const fetchProjects = async () => {
-    const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    return data;
+    return [];
 };
 
 export const deleteProject = async (id) => {
-    const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (error) throw error;
+    return;
 };
 
 export const getProject = async (id) => {
-    const { data, error } = await supabase.from("projects").select("*").eq("id", id).single();
-    if (error) throw error;
-    return data;
+    return {};
 };
 
 export const updateProject = async (id, projectData) => {
-    const { data, error } = await supabase
-        .from("projects")
-        .update(projectData)
-        .eq("id", id)
-        .select();
-
-    if (error) throw error;
-    return data;
+    return [];
 };
