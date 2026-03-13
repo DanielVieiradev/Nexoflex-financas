@@ -1,8 +1,8 @@
-# React + Vite
+# Finanças
 
-📊 Nexoflex — Sistema Inteligente para Gestão de Projetos e Finanças
+📊 Nexoflex — Sistema Inteligente para Gestão finanças pessoais, busca atender usuários comuns que procuram uma forma inteligente de gerenciar seu dinheiro e seus objetivos.
 
-O Nexoflex é uma aplicação web desenvolvida em React + Vite, projetada para oferecer uma experiência simples, moderna e eficiente no gerenciamento de projetos e finanças.
+O Nexoflex é uma aplicação web desenvolvida em React + Vite, projetada para oferecer uma experiência simples, moderna e eficiente no gerenciamento.
 O foco do sistema é organização, velocidade e clareza, permitindo acompanhar a evolução dos projetos de forma visual e intuitiva.
 
 🚀 Tecnologias utilizadas
@@ -16,7 +16,7 @@ O foco do sistema é organização, velocidade e clareza, permitindo acompanhar 
 
 🧩 Objetivo do Projeto
 
-Criar uma solução simples e flexível para empresas ou profissionais que precisam acompanhar seus projetos, métricas e finanças, com foco em:
+Criar uma solução simples e flexível.
 
 Visual limpo
 
@@ -38,15 +38,11 @@ Gráficos com Chart.js ou Recharts
 
 API própria para projetos
 
-🎨 Funcionalidades principais e Responsividade
+ Funcionalidades principais e Responsividade
 
 * Navbar moderna e adaptada para mobile, incluindo menu hambúrguer.
 
-* Página Empresa com seções informativas.
-
-* Página Projetos com gerenciamento (listar, detalhes, API).
-
-* Página Contato com formulário e redes sociais animadas.
+* Páginas com seções informativas.
 
 * Tema visual profissional, inspirado em dashboards corporativos.
 
@@ -60,7 +56,7 @@ API própria para projetos
 
 Clone o repositório:
 
-git clone https://github.com/SEU-USUARIO/nexoflex.git
+git clone https://github.com/SEU-USUARIO/nexoflex-financas.git
 
 
 Entre na pasta:
