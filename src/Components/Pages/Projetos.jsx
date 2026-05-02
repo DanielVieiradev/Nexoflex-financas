@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import styles from "./Dashboard.module.css";
 import Container from "../../shared/ui/layout/Container";
-import { FiTrendingUp, FiTrendingDown, FiDollarSign, FiPlus, FiEdit2, FiTrash2, FiStar, FiX } from "react-icons/fi";
+import { FiTrendingUp, FiTrendingDown, FiDollarSign, FiPlus, FiEdit2, FiTrash2, FiStar, FiX, FiGrid } from "react-icons/fi";
 import { useAuth } from "../../modules/auth/application/AuthContext";
 import {
   fetchTransactionsApi,
@@ -10,9 +10,19 @@ import {
   deleteTransactionApi,
 } from "../../core/infrastructure/supabaseRestApi";
 
+// ─── Categorias disponíveis ────────────────────────────────────────────
+const CATEGORIES = [
+  'Moradia',
+  'Alimentação/Mercado',
+  'Lazer',
+  'Contas Fixas',
+  'Emergência',
+];
+
 function Projetos() {
   const { user, loading: authLoading, session } = useAuth();
   const [transactions, setTransactions] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('Todas');
 
   // Helper para agrupar meses
   const getUniqueMonths = (txs) => {
@@ -56,7 +66,11 @@ function Projetos() {
     value: '',
     type: 'expense'
   });
-  const filteredTransactions = transactions.filter(t => t.date.substring(0, 7) === selectedMonth);
+  // Filtrar por mês e depois por categoria
+  const monthFiltered = transactions.filter(t => t.date.substring(0, 7) === selectedMonth);
+  const filteredTransactions = selectedCategory === 'Todas'
+    ? monthFiltered
+    : monthFiltered.filter(t => t.category === selectedCategory);
 
   const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.value, 0);
   const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.value, 0);
@@ -184,6 +198,28 @@ function Projetos() {
               {formatMonthLabel(month)}
             </button>
           ))}
+        </div>
+
+        {/* Filtro por Categoria */}
+        <div className={styles.categoryFilter}>
+          <FiGrid className={styles.categoryFilterIcon} />
+          <div className={styles.categoryTabs}>
+            <button
+              className={`${styles.categoryTab} ${selectedCategory === 'Todas' ? styles.activeCategoryTab : ''}`}
+              onClick={() => setSelectedCategory('Todas')}
+            >
+              Todas
+            </button>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                className={`${styles.categoryTab} ${selectedCategory === cat ? styles.activeCategoryTab : ''}`}
+                onClick={() => setSelectedCategory(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -315,7 +351,12 @@ function Projetos() {
 
               <div className={styles.formGroup}>
                 <label>Categoria</label>
-                <input type="text" name="category" value={formData.category} onChange={handleChange} placeholder="Ex: Moradia, Alimentação..." required />
+                <select name="category" value={formData.category} onChange={handleChange} required>
+                  <option value="">Selecione a categoria</option>
+                  {CATEGORIES.map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
               </div>
 
               <div className={styles.formGroup}>

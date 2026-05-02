@@ -67,6 +67,61 @@
   background: #006043;
 }
 
+/* Category Filter Styles */
+.categoryFilter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #E5E7EB;
+}
+
+.categoryFilterIcon {
+  color: #9CA3AF;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.categoryTabs {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.categoryTab {
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  color: #6B7280;
+  padding: 0.35rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.categoryTab:hover {
+  background: #F3F4F6;
+  border-color: #D1D5DB;
+  color: #374151;
+}
+
+.activeCategoryTab {
+  background: #1F2937;
+  color: #FFFFFF;
+  border-color: #1F2937;
+}
+
+.activeCategoryTab:hover {
+  background: #111827;
+  border-color: #111827;
+}
+
+
 .dashboardGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
