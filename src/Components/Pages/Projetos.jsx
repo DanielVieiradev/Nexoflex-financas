@@ -32,20 +32,25 @@ function Projetos() {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'NÃO DEFINIDA';
     setDebugInfo(`URL: ${supabaseUrl} | User: ${user.id} | Buscando...`);
 
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('date', { ascending: false });
 
-    if (error) {
-      console.error("Erro ao buscar transações:", error);
-      setDebugInfo(`ERRO: ${error.message} | Code: ${error.code} | Hint: ${error.hint}`);
-    } else {
-      setTransactions(data || []);
-      const months = getUniqueMonths(data || []);
-      setAvailableMonths(months);
-      setDebugInfo(`OK! ${(data || []).length} transações carregadas | URL: ${supabaseUrl} | User: ${user.id}`);
+      if (error) {
+        console.error("Erro ao buscar transações:", error);
+        setDebugInfo(`ERRO DB: ${error.message} | Code: ${error.code} | Hint: ${error.hint}`);
+      } else {
+        setTransactions(data || []);
+        const months = getUniqueMonths(data || []);
+        setAvailableMonths(months);
+        setDebugInfo(`OK! ${(data || []).length} transações carregadas | URL: ${supabaseUrl} | User: ${user.id}`);
+      }
+    } catch (ex) {
+      setDebugInfo(`EXCEÇÃO: ${ex.message || ex}`);
+      console.error("Exceção ao buscar transações:", ex);
     }
   }, [user]);
 
