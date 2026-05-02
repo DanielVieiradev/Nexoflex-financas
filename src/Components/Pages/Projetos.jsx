@@ -31,13 +31,11 @@ function Projetos() {
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
     const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-    setDebugInfo(`User: ${user.id} | Buscando via fetch direto...`);
+    // Usar token da session que JÁ temos do AuthContext (NÃO chamar getSession - trava!)
+    const accessToken = session?.access_token;
+    setDebugInfo(`User: ${user.id} | Token: ${accessToken ? 'SIM' : 'NULL'} | Chamando API...`);
 
     try {
-      // Pegar o token de acesso da sessão atual
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData?.session?.access_token;
-      setDebugInfo(`User: ${user.id} | Token: ${accessToken ? 'SIM (' + accessToken.substring(0, 20) + '...)' : 'NULL'} | Chamando API...`);
 
       // Bypass do cliente Supabase - chamada HTTP direta com timeout de 10s
       const controller = new AbortController();
@@ -74,7 +72,7 @@ function Projetos() {
       }
       console.error("Exceção ao buscar transações:", ex);
     }
-  }, [user]);
+  }, [user, session]);
 
   // Busca transações assim que o auth terminar de carregar e o user estiver disponível
   useEffect(() => {
