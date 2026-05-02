@@ -29,27 +29,49 @@ function Projetos() {
       return;
     }
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'NÃO DEFINIDA';
-    setDebugInfo(`URL: ${supabaseUrl} | User: ${user.id} | Buscando...`);
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+    setDebugInfo(`User: ${user.id} | Buscando via fetch direto...`);
 
     try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date', { ascending: false });
+      // Pegar o token de acesso da sessão atual
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      setDebugInfo(`User: ${user.id} | Token: ${accessToken ? 'SIM (' + accessToken.substring(0, 20) + '...)' : 'NULL'} | Chamando API...`);
 
-      if (error) {
-        console.error("Erro ao buscar transações:", error);
-        setDebugInfo(`ERRO DB: ${error.message} | Code: ${error.code} | Hint: ${error.hint}`);
+      // Bypass do cliente Supabase - chamada HTTP direta com timeout de 10s
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(
+        `${supabaseUrl}/rest/v1/transactions?select=*&user_id=eq.${user.id}&order=date.desc`,
+        {
+          headers: {
+            'apikey': supabaseKey,
+            'Authorization': `Bearer ${accessToken || supabaseKey}`,
+            'Content-Type': 'application/json',
+          },
+          signal: controller.signal,
+        }
+      );
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        setDebugInfo(`ERRO HTTP ${response.status}: ${errorText}`);
       } else {
+        const data = await response.json();
         setTransactions(data || []);
         const months = getUniqueMonths(data || []);
         setAvailableMonths(months);
-        setDebugInfo(`OK! ${(data || []).length} transações carregadas | URL: ${supabaseUrl} | User: ${user.id}`);
+        setDebugInfo(`OK! ${(data || []).length} transações via fetch direto | User: ${user.id}`);
       }
     } catch (ex) {
-      setDebugInfo(`EXCEÇÃO: ${ex.message || ex}`);
+      if (ex.name === 'AbortError') {
+        setDebugInfo(`TIMEOUT: A query demorou mais de 10s. O Supabase não respondeu.`);
+      } else {
+        setDebugInfo(`EXCEÇÃO: ${ex.message || ex}`);
+      }
       console.error("Exceção ao buscar transações:", ex);
     }
   }, [user]);
