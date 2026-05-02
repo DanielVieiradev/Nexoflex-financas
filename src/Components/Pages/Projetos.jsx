@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import styles from "./Dashboard.module.css";
 import Container from "../../shared/ui/layout/Container";
 import { FiTrendingUp, FiTrendingDown, FiDollarSign, FiPlus, FiEdit2, FiTrash2, FiStar, FiX } from "react-icons/fi";
@@ -6,8 +6,9 @@ import { supabase } from "../../core/infrastructure/supabaseClient";
 import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function Projetos() {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, session } = useAuth();
   const [transactions, setTransactions] = useState([]);
+  const [debugInfo, setDebugInfo] = useState('Inicializando...');
 
   // Helper para agrupar meses
   const getUniqueMonths = (txs) => {
@@ -23,7 +24,13 @@ function Projetos() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
 
   const fetchTransactions = useCallback(async () => {
-    if (!user) return;
+    if (!user) {
+      setDebugInfo(prev => prev + ' | fetchTransactions: user é NULL, abortando.');
+      return;
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'NÃO DEFINIDA';
+    setDebugInfo(`URL: ${supabaseUrl} | User: ${user.id} | Buscando...`);
 
     const { data, error } = await supabase
       .from('transactions')
@@ -33,20 +40,28 @@ function Projetos() {
 
     if (error) {
       console.error("Erro ao buscar transações:", error);
-      alert("ERRO SUPABASE (Fetch): " + error.message + " | Hint: " + error.hint);
+      setDebugInfo(`ERRO: ${error.message} | Code: ${error.code} | Hint: ${error.hint}`);
     } else {
       setTransactions(data || []);
       const months = getUniqueMonths(data || []);
       setAvailableMonths(months);
+      setDebugInfo(`OK! ${(data || []).length} transações carregadas | URL: ${supabaseUrl} | User: ${user.id}`);
     }
   }, [user]);
 
   // Busca transações assim que o auth terminar de carregar e o user estiver disponível
   useEffect(() => {
-    if (!authLoading && user) {
-      fetchTransactions();
+    if (authLoading) {
+      setDebugInfo('Auth carregando...');
+      return;
     }
-  }, [authLoading, user, fetchTransactions]);
+    if (!user) {
+      setDebugInfo('Auth carregou mas user é NULL. Session: ' + (session ? 'existe' : 'NULL'));
+      return;
+    }
+    setDebugInfo(`Auth OK. User: ${user.id}. Chamando fetch...`);
+    fetchTransactions();
+  }, [authLoading, user, session, fetchTransactions]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -180,6 +195,11 @@ function Projetos() {
 
   return (
     <div className={styles.homeContainer}>
+      {/* DEBUG BANNER - REMOVER DEPOIS */}
+      <div style={{background:'#fef3c7',color:'#92400e',padding:'12px 20px',fontSize:'13px',fontFamily:'monospace',borderBottom:'2px solid #f59e0b',wordBreak:'break-all'}}>
+        <strong>🔍 DEBUG:</strong> {debugInfo}
+      </div>
+
       <div className={styles.headerArea}>
         <h1>Gestão de Fluxo de Caixa</h1>
         <p>Acompanhe todas as suas entradas, saídas e saldo atualizado.</p>
