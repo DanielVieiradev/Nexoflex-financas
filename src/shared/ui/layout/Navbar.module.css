@@ -1,0 +1,357 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  z-index: 1000;
+  background: #06523b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+.navbar-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+}
+
+.logo img {
+  width: 60px;
+  height: auto;
+  transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.1);
+}
+
+.brandname {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 700;
+  font-family: 'Inter', 'Arial', sans-serif;
+  text-transform: uppercase;
+  border-left: 1px solid rgba(255, 255, 255, 0.5);
+  padding-left: 15px;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.list {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+}
+
+.item a {
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: #ffffff;
+  transition: 0.3s;
+  padding: 5px 0;
+  position: relative;
+}
+
+.item a:hover {
+  color: #10b981;
+}
+
+.item a::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  height: 2px;
+  width: 0;
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.item a:hover::after {
+  width: 100%;
+}
+
+.icon {
+  margin-right: 8px;
+  font-size: 18px;
+  vertical-align: middle;
+  transition: transform 0.3s ease;
+}
+
+.item a:hover .icon {
+  transform: scale(1.1);
+}
+
+/* Scrolled state */
+.scrolled {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  height: 60px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.scrolled .brandname,
+.scrolled .item a {
+  color: #1a1a1a;
+}
+
+.scrolled .item a:hover {
+  color: #10b981;
+}
+
+.scrolled .item a::after {
+  background-color: #10b981;
+}
+
+:global(body.dark-mode) .scrolled {
+  background: rgba(15, 23, 42, 0.85);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+:global(body.dark-mode) .scrolled .brandname,
+:global(body.dark-mode) .scrolled .item a {
+  color: #f8fafc;
+}
+
+/* Coin Toggle */
+.itemToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.coinToggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  outline: none;
+  width: 36px;
+  height: 36px;
+  perspective: 1000px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1001;
+}
+
+.coinInner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+  transform-style: preserve-3d;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 2px 2px rgba(255, 255, 255, 0.5);
+}
+
+.coinToggle:hover .coinInner {
+  transform: scale(1.1) rotateY(15deg);
+}
+
+.coinToggle.coinFlipped .coinInner {
+  transform: rotateY(180deg);
+}
+
+.coinToggle.coinFlipped:hover .coinInner {
+  transform: scale(1.1) rotateY(195deg);
+}
+
+.coinFront,
+.coinBack {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+}
+
+.coinFront {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #f8fafc 100%);
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: rotateY(0deg);
+}
+
+.coinBack {
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 50%, #fef9c3 100%);
+  color: #713f12;
+  border-color: #ca8a04;
+  transform: rotateY(180deg);
+}
+
+.realSymbol {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Mobile Menu Toggle (Hamburger) */
+.menu-toggle {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  z-index: 1100;
+  padding: 5px;
+}
+
+.menu-toggle span {
+  width: 28px;
+  height: 3px;
+  background: #ffffff;
+  transition: 0.3s;
+  border-radius: 3px;
+}
+
+.scrolled .menu-toggle span {
+  background: #1a1a1a;
+}
+
+:global(body.dark-mode) .scrolled .menu-toggle span {
+  background: #f8fafc;
+}
+
+/* Body spacing */
+body {
+  margin: 0;
+  padding-top: 70px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+  body {
+    padding-top: 60px;
+  }
+
+  .navbar {
+    height: 70px;
+  }
+
+  .scrolled {
+    height: 60px;
+  }
+
+  .navbar-content {
+    padding: 0 15px;
+  }
+
+  .brand {
+    gap: 10px;
+  }
+
+  .logo img {
+    width: 45px;
+  }
+
+  .brandname {
+    font-size: 18px;
+    padding-left: 10px;
+  }
+
+  .menu-toggle {
+    display: flex;
+  }
+
+  .list {
+    position: fixed;
+    top: 70px;
+    /* Height of the navbar when not scrolled */
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-height: 0;
+    overflow: hidden;
+    flex-direction: column;
+    gap: 20px;
+    background: #06523b;
+    padding: 0;
+    text-align: center;
+    transition: max-height 0.4s ease, padding 0.4s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  /* When scrolled, the top should adjust */
+  .scrolled .list {
+    top: 60px;
+    background: #ffffff;
+  }
+
+  :global(body.dark-mode) .scrolled .list {
+    background: #0f172a;
+  }
+
+  .list.open {
+    max-height: 300px;
+    padding: 25px 0;
+  }
+
+  .item a {
+    font-size: 18px;
+    display: block;
+    width: 100%;
+    padding: 10px 0;
+  }
+
+  .scrolled .item a {
+    color: #1a1a1a;
+  }
+
+  :global(body.dark-mode) .scrolled .item a {
+    color: #f8fafc;
+  }
+
+  .itemToggle {
+    margin-top: 5px;
+  }
+
+  /* Hamburger active state */
+  .menu-toggle.active span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+  }
+
+  .menu-toggle.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-toggle.active span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+  }
+}

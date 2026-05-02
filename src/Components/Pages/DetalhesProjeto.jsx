@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getProject, updateProject } from "../services/supabase"; // Updated import
+import { getProject, updateProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
 import ServiceForm from "../Project/ServiceForm";
 import styles from "./DetalhesProjeto.module.css";
 
@@ -72,7 +72,11 @@ function DetalhesProjeto() {
       return;
     }
 
-    const novoServico = { ...service, id: crypto.randomUUID() }; // Use crypto.randomUUID for better IDs
+    const safeId = typeof crypto !== 'undefined' && crypto.randomUUID 
+      ? crypto.randomUUID() 
+      : Date.now().toString() + Math.random().toString(36).substring(2);
+      
+    const novoServico = { ...service, id: safeId }; 
     const novosServicos = [...projeto.services, novoServico];
 
     // Update the services JSON column

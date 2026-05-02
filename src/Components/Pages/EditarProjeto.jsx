@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { getProject, updateProject } from "../services/supabase";
+import { getProject, updateProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
 import styles from "./EditarProjeto.module.css";
 
 function EditarProjeto() {

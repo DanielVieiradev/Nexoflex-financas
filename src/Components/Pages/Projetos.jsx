@@ -1,17 +1,46 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from "./Dashboard.module.css";
-import Container from "../layout/Container";
+import Container from "../../shared/ui/layout/Container";
 import { FiTrendingUp, FiTrendingDown, FiDollarSign, FiPlus, FiEdit2, FiTrash2, FiStar, FiX } from "react-icons/fi";
+import { supabase } from "../../core/infrastructure/supabaseClient";
+import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function Projetos() {
-  const [transactions, setTransactions] = useState(() => {
-    const saved = localStorage.getItem('nexo_transactions');
-    return saved ? JSON.parse(saved) : [
-      { id: 1, date: '2023-11-01', description: 'Salário', category: 'Receita', value: 5000, type: 'income', favorite: true },
-      { id: 2, date: '2023-11-05', description: 'Aluguel', category: 'Moradia', value: 1500, type: 'expense', favorite: false },
-      { id: 3, date: '2023-11-10', description: 'Supermercado', category: 'Alimentação', value: 600, type: 'expense', favorite: false },
-    ];
-  });
+  const { user } = useAuth();
+  const [transactions, setTransactions] = useState([]);
+
+  // Helper para agrupar meses
+  const getUniqueMonths = (txs) => {
+    const months = txs.map(t => t.date.substring(0, 7)); // get YYYY-MM
+    const currentMonth = new Date().toISOString().substring(0, 7);
+    if (!months.includes(currentMonth)) {
+      months.push(currentMonth);
+    }
+    return [...new Set(months)].sort((a, b) => b.localeCompare(a)); // desc
+  };
+
+  const [availableMonths, setAvailableMonths] = useState([new Date().toISOString().substring(0, 7)]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
+
+  const fetchTransactions = useCallback(async () => {
+    if (!user) return;
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .order('date', { ascending: false });
+
+    if (error) {
+      console.error("Erro ao buscar transações:", error);
+    } else {
+      setTransactions(data || []);
+      const months = getUniqueMonths(data || []);
+      setAvailableMonths(months);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    fetchTransactions();
+  }, [fetchTransactions]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -22,17 +51,20 @@ function Projetos() {
     value: '',
     type: 'expense'
   });
+  const filteredTransactions = transactions.filter(t => t.date.substring(0, 7) === selectedMonth);
 
-  useEffect(() => {
-    localStorage.setItem('nexo_transactions', JSON.stringify(transactions));
-  }, [transactions]);
-
-  const totalIncome = transactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.value, 0);
-  const totalExpense = transactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.value, 0);
+  const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.value, 0);
+  const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.value, 0);
   const balance = totalIncome - totalExpense;
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value) || 0);
+  };
+
+  const formatMonthLabel = (yearMonth) => {
+    const [year, month] = yearMonth.split('-');
+    const date = new Date(year, month - 1);
+    return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^\w/, c => c.toUpperCase());
   };
 
   // Funções de CRUD
@@ -68,36 +100,69 @@ function Projetos() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.description || !formData.value || !formData.date) return;
+    if (!formData.description || !formData.value || !formData.date || !user) return;
 
     const newTransaction = {
-      id: editingId ? editingId : Date.now(),
-      ...formData,
-      value: parseFloat(formData.value)
+      date: formData.date,
+      description: formData.description,
+      category: formData.category,
+      value: parseFloat(formData.value),
+      type: formData.type,
+      user_id: user.id
     };
 
     if (editingId) {
-      setTransactions(transactions.map(t => t.id === editingId ? { ...newTransaction, favorite: t.favorite } : t));
+      const { error } = await supabase
+        .from('transactions')
+        .update(newTransaction)
+        .eq('id', editingId);
+      if (error) console.error("Erro ao atualizar:", error);
     } else {
-      setTransactions([{ ...newTransaction, favorite: false }, ...transactions]);
+      newTransaction.favorite = false;
+      const { error } = await supabase
+        .from('transactions')
+        .insert([newTransaction]);
+      if (error) console.error("Erro ao inserir:", error);
     }
+    
+    await fetchTransactions();
+
+    const transactionMonth = newTransaction.date.substring(0, 7);
+    if (transactionMonth !== selectedMonth) {
+      setSelectedMonth(transactionMonth);
+    }
+    
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if(window.confirm('Tem certeza que deseja excluir esta transação?')){
-      setTransactions(transactions.filter(t => t.id !== id));
+      const { error } = await supabase.from('transactions').delete().eq('id', id);
+      if (error) {
+        console.error("Erro ao deletar:", error);
+      } else {
+        await fetchTransactions();
+      }
     }
   };
 
-  const toggleFavorite = (id) => {
-    setTransactions(transactions.map(t => t.id === id ? { ...t, favorite: !t.favorite } : t));
+  const toggleFavorite = async (transaction) => {
+    const { error } = await supabase
+      .from('transactions')
+      .update({ favorite: !transaction.favorite })
+      .eq('id', transaction.id);
+      
+    if (error) {
+      console.error("Erro ao favoritar:", error);
+    } else {
+      setTransactions(transactions.map(t => t.id === transaction.id ? { ...t, favorite: !t.favorite } : t));
+    }
   };
 
   // Ordena para que os favoritos apareçam antes
-  const sortedTransactions = [...transactions].sort((a, b) => {
+  const sortedTransactions = [...filteredTransactions].sort((a, b) => {
     if (a.favorite === b.favorite) {
       return new Date(b.date) - new Date(a.date);
     }
@@ -109,6 +174,18 @@ function Projetos() {
       <div className={styles.headerArea}>
         <h1>Gestão de Fluxo de Caixa</h1>
         <p>Acompanhe todas as suas entradas, saídas e saldo atualizado.</p>
+        
+        <div className={styles.monthSelector}>
+          {availableMonths.map(month => (
+            <button 
+              key={month}
+              className={`${styles.monthTab} ${selectedMonth === month ? styles.activeMonthTab : ''}`}
+              onClick={() => setSelectedMonth(month)}
+            >
+              {formatMonthLabel(month)}
+            </button>
+          ))}
+        </div>
       </div>
 
       <Container customClass="column">
@@ -181,7 +258,7 @@ function Projetos() {
                         <div className={styles.rowActions}>
                           <button 
                             className={`${styles.iconButton} ${t.favorite ? styles.favorite : ''}`} 
-                            onClick={() => toggleFavorite(t.id)}
+                            onClick={() => toggleFavorite(t)}
                             title={t.favorite ? "Remover dos favoritos" : "Favoritar"}
                           >
                             <FiStar fill={t.favorite ? "#F59E0B" : "none"} />

@@ -32,7 +32,7 @@ function Contato() {
             href="https://www.instagram.com/danielvieirasl/"
             target="_blank"
             rel="noreferrer"
-          className={`${styles.socialButton} ${styles.instagramBtn}`}
+            className={`${styles.socialButton} ${styles.instagramBtn}`}
 
           >
             <svg

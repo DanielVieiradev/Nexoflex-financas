@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Input from "../Form/Input";
 import styles from "./ProjectForm.module.css";
-import { supabase } from "../services/supabase";
+import { createProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
 
 function ProjectForm() {
   const [project, setProject] = useState({
@@ -20,21 +20,17 @@ function ProjectForm() {
     const projectToInsert = {
       name: project.name,
       budget: Number(project.budget),
-      category_id: project.category,
+      category: project.category,
     };
 
-    const { error } = await supabase
-      .from("projects")
-      .insert([projectToInsert]);
-
-    if (error) {
-      console.error("Erro ao criar projeto:", error);
+    try {
+      await createProject(projectToInsert);
+      alert("✅ Projeto criado com sucesso!");
+      setProject({ name: "", budget: "", category: "" });
+    } catch (error) {
+      console.error(error);
       alert("❌ Ocorreu um erro ao salvar o projeto.");
-      return;
     }
-
-    alert("✅ Projeto criado com sucesso!");
-    setProject({ name: "", budget: "", category: "" });
   }
 
   return (

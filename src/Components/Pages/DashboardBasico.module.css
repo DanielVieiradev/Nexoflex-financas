@@ -1,0 +1,132 @@
+.dashboard {
+  width: 100%;
+  padding: 40px 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.headerControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .headerControls {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.header h1 {
+  font-size: 32px;
+  color: #0f172a;
+  margin-bottom: 12px;
+}
+
+:global(body.dark-mode) .header h1 {
+  color: #f8fafc;
+}
+
+.header p {
+  color: #64748b;
+  font-size: 18px;
+}
+
+:global(body.dark-mode) .header p {
+  color: #94a3b8;
+}
+
+.cardsContainer {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.card {
+  flex: 1;
+  min-width: 280px;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 40px 30px;
+  text-align: center;
+  text-decoration: none;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+:global(body.dark-mode) .card {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+:global(body.dark-mode) .card:hover {
+  box-shadow: 0 15px 40px rgba(16, 185, 129, 0.1);
+}
+
+.iconWrapper {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.card:hover .iconWrapper {
+  background: #10b981;
+}
+
+.icon {
+  font-size: 36px;
+  color: #10b981;
+  transition: all 0.3s ease;
+}
+
+.card:hover .icon {
+  color: #ffffff;
+}
+
+.card h2 {
+  font-size: 24px;
+  color: #0f172a;
+  margin-bottom: 16px;
+}
+
+:global(body.dark-mode) .card h2 {
+  color: #f8fafc;
+}
+
+.card p {
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+:global(body.dark-mode) .card p {
+  color: #94a3b8;
+}

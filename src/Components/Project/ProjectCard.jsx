@@ -1,6 +1,6 @@
 import styles from "./ProjectCard.module.css";
 import { Link } from "react-router-dom";
-import { deleteProject } from "../services/supabase";
+import { deleteProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
 
 function ProjectCard({ id, name, budget, category, onRemove }) {
 

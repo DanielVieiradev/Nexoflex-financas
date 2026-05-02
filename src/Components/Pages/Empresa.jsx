@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import styles from "./Dashboard.module.css";
-import Container from "../layout/Container";
+import Container from "../../shared/ui/layout/Container";
 import { FiPlus, FiEdit2, FiTrash2, FiStar, FiX } from "react-icons/fi";
 
 function Empresa() {

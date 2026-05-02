@@ -1,28 +1,49 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Home.module.css";
 import { FiTrendingUp, FiTarget, FiShield, FiArrowRight } from "react-icons/fi";
-import heroImg from "../../img/home2.png"; // Usando imagem existente ou uma representação
 
 function Home() {
+  const [isDarkMode, setIsDarkMode] = useState(
+    document.body.classList.contains("dark-mode") ||
+    localStorage.getItem("theme") === "dark" ||
+    (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  );
+
+  useEffect(() => {
+    const observer = new MutationObserver(() => {
+      setIsDarkMode(document.body.classList.contains("dark-mode"));
+    });
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className={styles.landingContainer}>
-      
+    <div className={`${styles.landingContainer} ${isDarkMode ? styles.dark : ""}`}>
       {/* Hero Section */}
       <section className={styles.heroSection}>
-        <div className={styles.heroContent}>
-          <span className={styles.badge}>Seu futuro começa agora</span>
-          <h1>Assuma o controle do seu dinheiro.</h1>
-          <p>
-            O Nexoflex é o seu parceiro digital para não apenas rastrear despesas, mas entender como você pode guardar mais. Motive-se a criar sua reserva e alcançar seus sonhos.
-          </p>
-          
-          <div className={styles.heroButtons}>
-            <Link to="/Projetos" className={styles.primaryButton}>
-              Ver Meu Fluxo de Caixa <FiArrowRight />
-            </Link>
-            <Link to="/empresa" className={styles.secondaryButton}>
-              Acessar Meus Objetivos
-            </Link>
+        {/* Subtle decorative elements */}
+        <div className={styles.glowOrb1}></div>
+        <div className={styles.glowOrb2}></div>
+
+        <div className={styles.heroWrapper}>
+          <div className={styles.heroContent}>
+            <span className={styles.badge}>
+              <span className={styles.badgeIcon}>✨</span> Inteligência Financeira
+            </span>
+            <h1>Assuma o controle do seu dinheiro.</h1>
+            <p>
+              Simples, elegante e focado no seu crescimento. O Nexoflex acompanha suas despesas e identifica como você pode construir seu patrimônio com facilidade.
+            </p>
+
+            <div className={styles.heroButtons}>
+              <Link to="/pricing" className={styles.primaryButton}>
+                Começar agora <FiArrowRight />
+              </Link>
+              <Link to="/empresa" className={styles.secondaryButton}>
+                Conhecer a plataforma
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -65,13 +86,25 @@ function Home() {
       <section className={styles.ctaSection}>
         <div className={styles.ctaCard}>
           <h2>A melhor hora para começar foi ontem. A segunda melhor é agora.</h2>
-          <p>Pare de adiar sua saúde financeira.</p>
-          <Link to="/Projetos" className={styles.primaryButtonLarge}>
-            Começar Agora, de Graça
-          </Link>
+          <p>Pare de adiar sua saúde financeira. Escolha seu plano:</p>
+          <div className={styles.pricingButtons}>
+            <Link to="/pricing" className={styles.planButton}>
+              <span className={styles.planName}>Plano Básico</span>
+              <span className={styles.planPrice}>Gratuito</span>
+            </Link>
+            <Link to="/pricing" className={`${styles.planButton} ${styles.planEssential}`}>
+              <div className={styles.popularBadge}>Mais Escolhido</div>
+              <span className={styles.planName}>Plano Essencial</span>
+              <span className={styles.planPrice}>R$ 14,99</span>
+            </Link>
+            <Link to="/pricing" className={styles.planButton}>
+              <span className={styles.planName}>Plano Premium</span>
+              <span className={styles.planPrice}>R$ 44,99</span>
+            </Link>
+          </div>
         </div>
       </section>
-      
+
     </div>
   );
 }
