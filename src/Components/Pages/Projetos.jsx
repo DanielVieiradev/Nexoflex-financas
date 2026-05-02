@@ -23,7 +23,10 @@ function Projetos() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
 
   const fetchTransactions = useCallback(async () => {
-    if (!user) return;
+    // Garante que o token de autenticação está válido ANTES de consultar
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
@@ -36,9 +39,9 @@ function Projetos() {
       const months = getUniqueMonths(data || []);
       setAvailableMonths(months);
     }
-  }, [user]);
+  }, []);
 
-  // Só busca transações quando o auth terminar de carregar E o user estiver disponível
+  // Busca transações assim que o auth terminar de carregar e o user estiver disponível
   useEffect(() => {
     if (!authLoading && user) {
       fetchTransactions();
