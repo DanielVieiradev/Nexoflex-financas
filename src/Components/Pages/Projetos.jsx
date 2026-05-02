@@ -6,7 +6,7 @@ import { supabase } from "../../core/infrastructure/supabaseClient";
 import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function Projetos() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [transactions, setTransactions] = useState([]);
 
   // Helper para agrupar meses
@@ -27,6 +27,7 @@ function Projetos() {
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
+      .eq('user_id', user.id)
       .order('date', { ascending: false });
 
     if (error) {
@@ -38,9 +39,12 @@ function Projetos() {
     }
   }, [user]);
 
+  // Só busca transações quando o auth terminar de carregar E o user estiver disponível
   useEffect(() => {
-    fetchTransactions();
-  }, [fetchTransactions]);
+    if (!authLoading && user) {
+      fetchTransactions();
+    }
+  }, [authLoading, user, fetchTransactions]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
