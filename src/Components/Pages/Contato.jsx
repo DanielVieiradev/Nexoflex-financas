@@ -1,12 +1,16 @@
 import styles from "./Contato.module.css";
 import { FiArrowRight, FiCode, FiLayout, FiMessageCircle, FiCheckCircle } from "react-icons/fi";
 import { FaInstagram } from "react-icons/fa";
+import ContatoBg from "../../img/Contato.png";
 
 function Contato() {
   const INSTAGRAM_URL = "https://www.instagram.com/vieiralab.dev/";
 
   return (
-    <section className={styles.hero}>
+    <section
+      className={styles.hero}
+      style={{ backgroundImage: `url(${ContatoBg})` }}
+    >
       <div className={styles.overlay}></div>
 
       {/* Decorative gradient orbs */}

@@ -6,7 +6,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0a0f1a;
+  background-color: #0a0f1a;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   overflow: hidden;
   padding: 6rem 2rem 4rem;
 }
@@ -16,10 +19,11 @@
   inset: 0;
   background: linear-gradient(
     160deg,
-    rgba(6, 82, 59, 0.15) 0%,
-    rgba(10, 15, 26, 0.95) 40%,
-    rgba(10, 15, 26, 1) 100%
+    rgba(6, 82, 59, 0.25) 0%,
+    rgba(10, 15, 26, 0.82) 35%,
+    rgba(10, 15, 26, 0.92) 100%
   );
+  backdrop-filter: blur(2px);
   z-index: 1;
 }
 
