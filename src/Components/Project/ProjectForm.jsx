@@ -2,8 +2,10 @@ import { useState } from "react";
 import Input from "../Form/Input";
 import styles from "./ProjectForm.module.css";
 import { createProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
+import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function ProjectForm() {
+  const { user } = useAuth();
   const [project, setProject] = useState({
     name: "",
     budget: "",
@@ -17,10 +19,16 @@ function ProjectForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    if (!user) {
+      alert("Você precisa estar logado!");
+      return;
+    }
+
     const projectToInsert = {
       name: project.name,
       budget: Number(project.budget),
       category: project.category,
+      user_id: user.id
     };
 
     try {

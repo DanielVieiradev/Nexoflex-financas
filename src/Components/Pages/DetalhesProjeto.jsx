@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getProject, updateProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
+import { useAuth } from "../../modules/auth/application/AuthContext";
 import ServiceForm from "../Project/ServiceForm";
 import styles from "./DetalhesProjeto.module.css";
 
 function DetalhesProjeto() {
   const { id } = useParams();
+  const { user } = useAuth();
 
   const [projeto, setProjeto] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -19,7 +21,8 @@ function DetalhesProjeto() {
   }
 
   useEffect(() => {
-    getProject(id)
+    if (!user) return;
+    getProject(id, user.id)
       .then((data) => {
         setProjeto({
           ...data,
@@ -31,7 +34,7 @@ function DetalhesProjeto() {
         console.error(err);
         setLoading(false);
       });
-  }, [id]);
+  }, [id, user]);
 
   if (loading) return <p>Carregando...</p>;
   if (!projeto) return <p>Projeto não encontrado.</p>;
@@ -55,7 +58,9 @@ function DetalhesProjeto() {
     // Only update the budget field
     const novoBudget = Number(projeto.budget) + valor;
 
-    updateProject(id, { budget: novoBudget })
+    if (!user) return;
+
+    updateProject(id, user.id, { budget: novoBudget })
       .then(() => {
         setProjeto({ ...projeto, budget: novoBudget });
         setNovoOrcamento("");
@@ -79,8 +84,10 @@ function DetalhesProjeto() {
     const novoServico = { ...service, id: safeId }; 
     const novosServicos = [...projeto.services, novoServico];
 
+    if (!user) return;
+
     // Update the services JSON column
-    updateProject(id, { services: novosServicos })
+    updateProject(id, user.id, { services: novosServicos })
       .then(() => {
         setProjeto({ ...projeto, services: novosServicos });
         showToast("Serviço adicionado!");
@@ -96,7 +103,9 @@ function DetalhesProjeto() {
       (s) => s.id !== serviceId
     );
 
-    updateProject(id, { services: servicesAtualizados })
+    if (!user) return;
+
+    updateProject(id, user.id, { services: servicesAtualizados })
       .then(() => {
         setProjeto({ ...projeto, services: servicesAtualizados });
         showToast("Serviço removido!");

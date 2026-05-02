@@ -1,12 +1,15 @@
 import styles from "./ProjectCard.module.css";
 import { Link } from "react-router-dom";
 import { deleteProject } from "../../modules/projects/infrastructure/projectSupabaseApi";
+import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function ProjectCard({ id, name, budget, category, onRemove }) {
+  const { user } = useAuth();
 
   const handleRemove = async () => {
     try {
-      await deleteProject(id);
+      if (!user) return;
+      await deleteProject(id, user.id);
       onRemove(id);
     } catch (error) {
       console.error("Erro ao excluir projeto:", error);

@@ -23,18 +23,12 @@ function Projetos() {
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
 
   const fetchTransactions = useCallback(async () => {
-    // getUser() força a verificação do token no servidor do Supabase.
-    // Se o token expirou, ele é renovado automaticamente antes da query.
-    // getSession() apenas lê do cache e pode ter um token expirado.
-    const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
-    if (authError || !authUser) {
-      console.error("Auth inválido para buscar transações:", authError);
-      return;
-    }
+    if (!user) return;
 
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
+      .eq('user_id', user.id)
       .order('date', { ascending: false });
 
     if (error) {
@@ -44,7 +38,7 @@ function Projetos() {
       const months = getUniqueMonths(data || []);
       setAvailableMonths(months);
     }
-  }, []);
+  }, [user]);
 
   // Busca transações assim que o auth terminar de carregar e o user estiver disponível
   useEffect(() => {
