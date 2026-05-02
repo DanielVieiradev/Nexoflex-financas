@@ -29,38 +29,29 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    // Fallback de segurança: se o Supabase demorar muito, liberamos a tela após 3 segundos
+    let isMounted = true;
+    let initialSessionHandled = false;
+
+    // Fallback de segurança: se o Supabase demorar mais de 5 segundos, liberamos a tela
     const fallbackTimer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    // Obter sessão inicial
-    supabase.auth.getSession().then(({ data, error }) => {
-      if (error || !data) {
-        setLoading(false);
-        return;
-      }
-      
-      const { session } = data;
-      setSession(session);
-      setUser(session?.user || null);
-      
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false));
-      } else {
+      if (isMounted && !initialSessionHandled) {
+        console.warn("AuthContext: fallback timer disparado, liberando tela.");
+        initialSessionHandled = true;
         setLoading(false);
       }
-    }).catch((err) => {
-      console.error("Erro no getSession:", err);
-      setLoading(false);
-    });
+    }, 5000);
 
-    // Escutar mudanças de autenticação
+    // onAuthStateChange é a fonte ÚNICA de verdade.
+    // No Supabase v2+, ele dispara automaticamente um evento INITIAL_SESSION
+    // quando a sessão é recuperada do localStorage (inclusive após refresh).
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
+        if (!isMounted) return;
+
         try {
           setSession(session);
           setUser(session?.user || null);
+
           if (session?.user) {
             await fetchProfile(session.user.id);
           } else {
@@ -69,13 +60,44 @@ export const AuthProvider = ({ children }) => {
         } catch (err) {
           console.error("Erro no onAuthStateChange:", err);
         } finally {
-          setLoading(false);
+          if (isMounted) {
+            initialSessionHandled = true;
+            setLoading(false);
+          }
         }
       }
     );
 
+    // Segurança extra: se o onAuthStateChange não disparar em 2s,
+    // tentamos recuperar a sessão manualmente via getSession
+    const getSessionFallback = setTimeout(async () => {
+      if (isMounted && !initialSessionHandled) {
+        try {
+          const { data } = await supabase.auth.getSession();
+          if (isMounted && !initialSessionHandled) {
+            const s = data?.session;
+            setSession(s || null);
+            setUser(s?.user || null);
+            if (s?.user) {
+              await fetchProfile(s.user.id);
+            }
+            initialSessionHandled = true;
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Erro no getSession fallback:", err);
+          if (isMounted) {
+            initialSessionHandled = true;
+            setLoading(false);
+          }
+        }
+      }
+    }, 2000);
+
     return () => {
+      isMounted = false;
       clearTimeout(fallbackTimer);
+      clearTimeout(getSessionFallback);
       subscription.unsubscribe();
     };
   }, []);
