@@ -1,7 +1,7 @@
 import styles from "./Contato.module.css";
 import { FiArrowRight, FiCode, FiLayout, FiMessageCircle, FiCheckCircle } from "react-icons/fi";
 import { FaInstagram } from "react-icons/fa";
-import ContatoBg from "../../img/Contato.png";
+import ContatoBg from "../../img/Instagram.jpeg";
 
 function Contato() {
   const INSTAGRAM_URL = "https://www.instagram.com/vieiralab.dev/";
