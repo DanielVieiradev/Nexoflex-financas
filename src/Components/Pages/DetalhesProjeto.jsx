@@ -77,11 +77,11 @@ function DetalhesProjeto() {
       return;
     }
 
-    const safeId = typeof crypto !== 'undefined' && crypto.randomUUID 
-      ? crypto.randomUUID() 
+    const safeId = typeof crypto !== 'undefined' && crypto.randomUUID
+      ? crypto.randomUUID()
       : Date.now().toString() + Math.random().toString(36).substring(2);
-      
-    const novoServico = { ...service, id: safeId }; 
+
+    const novoServico = { ...service, id: safeId };
     const novosServicos = [...projeto.services, novoServico];
 
     if (!user) return;

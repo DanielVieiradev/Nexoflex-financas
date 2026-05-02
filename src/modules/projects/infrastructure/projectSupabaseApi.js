@@ -25,7 +25,7 @@ export const getProject = async (id, userId) => {
     .eq('id', id)
     .eq('user_id', userId)
     .single();
-    
+
   if (error) {
     console.error("Erro ao buscar projeto:", error);
     throw error;
@@ -41,7 +41,7 @@ export const updateProject = async (id, userId, updates) => {
     .eq('user_id', userId)
     .select()
     .single();
-    
+
   if (error) {
     console.error("Erro ao atualizar projeto:", error);
     throw error;

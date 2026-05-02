@@ -33,6 +33,7 @@ function Projetos() {
 
     if (error) {
       console.error("Erro ao buscar transações:", error);
+      alert("ERRO SUPABASE (Fetch): " + error.message + " | Hint: " + error.hint);
     } else {
       setTransactions(data || []);
       const months = getUniqueMonths(data || []);
@@ -129,7 +130,10 @@ function Projetos() {
       const { error } = await supabase
         .from('transactions')
         .insert([newTransaction]);
-      if (error) console.error("Erro ao inserir:", error);
+      if (error) {
+        console.error("Erro ao inserir:", error);
+        alert("ERRO AO INSERIR: " + error.message);
+      }
     }
 
     await fetchTransactions();
