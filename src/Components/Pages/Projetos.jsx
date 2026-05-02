@@ -1,91 +1,50 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import styles from "./Dashboard.module.css";
 import Container from "../../shared/ui/layout/Container";
 import { FiTrendingUp, FiTrendingDown, FiDollarSign, FiPlus, FiEdit2, FiTrash2, FiStar, FiX } from "react-icons/fi";
-import { supabase } from "../../core/infrastructure/supabaseClient";
 import { useAuth } from "../../modules/auth/application/AuthContext";
+import {
+  fetchTransactionsApi,
+  insertTransactionApi,
+  updateTransactionApi,
+  deleteTransactionApi,
+} from "../../core/infrastructure/supabaseRestApi";
 
 function Projetos() {
   const { user, loading: authLoading, session } = useAuth();
   const [transactions, setTransactions] = useState([]);
-  const [debugInfo, setDebugInfo] = useState('Inicializando...');
 
   // Helper para agrupar meses
   const getUniqueMonths = (txs) => {
-    const months = txs.map(t => t.date.substring(0, 7)); // get YYYY-MM
+    const months = txs.map(t => t.date.substring(0, 7));
     const currentMonth = new Date().toISOString().substring(0, 7);
     if (!months.includes(currentMonth)) {
       months.push(currentMonth);
     }
-    return [...new Set(months)].sort((a, b) => b.localeCompare(a)); // desc
+    return [...new Set(months)].sort((a, b) => b.localeCompare(a));
   };
 
   const [availableMonths, setAvailableMonths] = useState([new Date().toISOString().substring(0, 7)]);
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().substring(0, 7));
 
+  // ─── Buscar transações via REST API direta ───────────────────────────
   const fetchTransactions = useCallback(async () => {
-    if (!user) {
-      setDebugInfo(prev => prev + ' | fetchTransactions: user é NULL, abortando.');
-      return;
-    }
-
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
-    // Usar token da session que JÁ temos do AuthContext (NÃO chamar getSession - trava!)
-    const accessToken = session?.access_token;
-    setDebugInfo(`User: ${user.id} | Token: ${accessToken ? 'SIM' : 'NULL'} | Chamando API...`);
+    if (!user || !session) return;
 
     try {
-
-      // Bypass do cliente Supabase - chamada HTTP direta com timeout de 10s
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-      const response = await fetch(
-        `${supabaseUrl}/rest/v1/transactions?select=*&user_id=eq.${user.id}&order=date.desc`,
-        {
-          headers: {
-            'apikey': supabaseKey,
-            'Authorization': `Bearer ${accessToken || supabaseKey}`,
-            'Content-Type': 'application/json',
-          },
-          signal: controller.signal,
-        }
-      );
-      clearTimeout(timeoutId);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        setDebugInfo(`ERRO HTTP ${response.status}: ${errorText}`);
-      } else {
-        const data = await response.json();
-        setTransactions(data || []);
-        const months = getUniqueMonths(data || []);
-        setAvailableMonths(months);
-        setDebugInfo(`OK! ${(data || []).length} transações via fetch direto | User: ${user.id}`);
-      }
-    } catch (ex) {
-      if (ex.name === 'AbortError') {
-        setDebugInfo(`TIMEOUT: A query demorou mais de 10s. O Supabase não respondeu.`);
-      } else {
-        setDebugInfo(`EXCEÇÃO: ${ex.message || ex}`);
-      }
-      console.error("Exceção ao buscar transações:", ex);
+      const data = await fetchTransactionsApi(user.id, session.access_token);
+      setTransactions(data || []);
+      const months = getUniqueMonths(data || []);
+      setAvailableMonths(months);
+    } catch (err) {
+      console.error("Erro ao buscar transações:", err);
     }
   }, [user, session]);
 
-  // Busca transações assim que o auth terminar de carregar e o user estiver disponível
   useEffect(() => {
-    if (authLoading) {
-      setDebugInfo('Auth carregando...');
-      return;
+    if (!authLoading && user && session) {
+      fetchTransactions();
     }
-    if (!user) {
-      setDebugInfo('Auth carregou mas user é NULL. Session: ' + (session ? 'existe' : 'NULL'));
-      return;
-    }
-    setDebugInfo(`Auth OK. User: ${user.id}. Chamando fetch...`);
-    fetchTransactions();
   }, [authLoading, user, session, fetchTransactions]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -113,7 +72,7 @@ function Projetos() {
     return date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(/^\w/, c => c.toUpperCase());
   };
 
-  // Funções de CRUD
+  // ─── CRUD ────────────────────────────────────────────────────────────
   const handleOpenModal = (transaction = null) => {
     if (transaction) {
       setEditingId(transaction.id);
@@ -148,9 +107,9 @@ function Projetos() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!formData.description || !formData.value || !formData.date || !user) return;
+    if (!formData.description || !formData.value || !formData.date || !user || !session) return;
 
-    const newTransaction = {
+    const payload = {
       date: formData.date,
       description: formData.description,
       category: formData.category,
@@ -159,54 +118,45 @@ function Projetos() {
       user_id: user.id
     };
 
-    if (editingId) {
-      const { error } = await supabase
-        .from('transactions')
-        .update(newTransaction)
-        .eq('id', editingId);
-      if (error) console.error("Erro ao atualizar:", error);
-    } else {
-      newTransaction.favorite = false;
-      const { error } = await supabase
-        .from('transactions')
-        .insert([newTransaction]);
-      if (error) {
-        console.error("Erro ao inserir:", error);
-        alert("ERRO AO INSERIR: " + error.message);
+    try {
+      if (editingId) {
+        await updateTransactionApi(editingId, payload, session.access_token);
+      } else {
+        payload.favorite = false;
+        await insertTransactionApi(payload, session.access_token);
       }
-    }
+      await fetchTransactions();
 
-    await fetchTransactions();
-
-    const transactionMonth = newTransaction.date.substring(0, 7);
-    if (transactionMonth !== selectedMonth) {
-      setSelectedMonth(transactionMonth);
+      const transactionMonth = payload.date.substring(0, 7);
+      if (transactionMonth !== selectedMonth) {
+        setSelectedMonth(transactionMonth);
+      }
+    } catch (err) {
+      console.error("Erro ao salvar transação:", err);
     }
 
     setIsModalOpen(false);
   };
 
   const handleDelete = async (id) => {
+    if (!session) return;
     if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
-      const { error } = await supabase.from('transactions').delete().eq('id', id);
-      if (error) {
-        console.error("Erro ao deletar:", error);
-      } else {
+      try {
+        await deleteTransactionApi(id, session.access_token);
         await fetchTransactions();
+      } catch (err) {
+        console.error("Erro ao deletar:", err);
       }
     }
   };
 
   const toggleFavorite = async (transaction) => {
-    const { error } = await supabase
-      .from('transactions')
-      .update({ favorite: !transaction.favorite })
-      .eq('id', transaction.id);
-
-    if (error) {
-      console.error("Erro ao favoritar:", error);
-    } else {
+    if (!session) return;
+    try {
+      await updateTransactionApi(transaction.id, { favorite: !transaction.favorite }, session.access_token);
       setTransactions(transactions.map(t => t.id === transaction.id ? { ...t, favorite: !t.favorite } : t));
+    } catch (err) {
+      console.error("Erro ao favoritar:", err);
     }
   };
 
@@ -220,11 +170,6 @@ function Projetos() {
 
   return (
     <div className={styles.homeContainer}>
-      {/* DEBUG BANNER - REMOVER DEPOIS */}
-      <div style={{background:'#fef3c7',color:'#92400e',padding:'12px 20px',fontSize:'13px',fontFamily:'monospace',borderBottom:'2px solid #f59e0b',wordBreak:'break-all'}}>
-        <strong>🔍 DEBUG:</strong> {debugInfo}
-      </div>
-
       <div className={styles.headerArea}>
         <h1>Gestão de Fluxo de Caixa</h1>
         <p>Acompanhe todas as suas entradas, saídas e saldo atualizado.</p>
@@ -391,4 +336,3 @@ function Projetos() {
 }
 
 export default Projetos;
-// Force deploy

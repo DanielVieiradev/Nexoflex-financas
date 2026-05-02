@@ -7,14 +7,14 @@ import styles from "./EditarProjeto.module.css";
 function EditarProjeto() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   const [project, setProject] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) return;
-    getProject(id, user.id)
+    if (!user || !session) return;
+    getProject(id, user.id, session.access_token)
       .then((data) => {
         setProject(data);
         setLoading(false);
@@ -23,7 +23,7 @@ function EditarProjeto() {
         console.error("Erro ao carregar projeto:", err);
         setLoading(false);
       });
-  }, [id, user]);
+  }, [id, user, session]);
 
   function handleChange(e) {
     setProject({ ...project, [e.target.name]: e.target.value });
@@ -31,20 +31,18 @@ function EditarProjeto() {
 
   function handleSubmit(e) {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !session) return;
 
-    // Ensure numeric fields are converted properly if needed, although Supabase usually handles strings well for numeric columns,
-    // explicit conversion matches previous logic.
     const projectToUpdate = {
       name: project.name,
       budget: Number(project.budget),
-      category_id: project.category_id, // Ensure we use the correct column name
+      category_id: project.category_id,
     };
 
-    updateProject(id, user.id, projectToUpdate)
+    updateProject(id, user.id, projectToUpdate, session.access_token)
       .then(() => {
         alert("Projeto atualizado com sucesso!");
-        navigate("/"); // Redirect to home/list
+        navigate("/");
       })
       .catch((err) => {
         console.error("Erro ao atualizar projeto:", err);

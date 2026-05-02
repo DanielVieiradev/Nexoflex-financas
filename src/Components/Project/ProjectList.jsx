@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import styles from "./ProjectList.module.css";
-// import api from "../services/api"; // Removendo import da api antiga (pode ser removido totalmente depois)
 import { fetchProjects } from "../../modules/projects/infrastructure/projectSupabaseApi";
 import ProjectCard from "../Project/ProjectCard";
 import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function ProjectsList() {
   const [projects, setProjects] = useState([]);
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   useEffect(() => {
     const loadProjects = async () => {
-      if (!user) return;
+      if (!user || !session) return;
       try {
-        const data = await fetchProjects(user.id);
+        const data = await fetchProjects(user.id, session.access_token);
         setProjects(data);
       } catch (error) {
         console.error("Erro ao buscar projetos:", error);
@@ -21,7 +20,7 @@ function ProjectsList() {
     };
 
     loadProjects();
-  }, [user]);
+  }, [user, session]);
 
   function removeProject(id) {
     setProjects((prev) => prev.filter((project) => project.id !== id));

@@ -10,98 +10,79 @@ export const AuthProvider = ({ children }) => {
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (!error && data) {
-        setProfile(data);
-      } else {
-        setProfile(null);
-      }
-    } catch (err) {
-      console.error("Erro ao buscar perfil:", err);
-    }
-  };
-
+  // ─── Inicialização da sessão ─────────────────────────────────────────
+  // onAuthStateChange é a fonte ÚNICA de verdade para o estado de auth.
+  // REGRA CRÍTICA: NÃO chamar supabase.from() dentro do callback
+  // do onAuthStateChange — isso causa deadlock no Supabase JS v2.
   useEffect(() => {
     let isMounted = true;
-    let initialSessionHandled = false;
 
-    // Fallback de segurança: se o Supabase demorar mais de 5 segundos, liberamos a tela
-    const fallbackTimer = setTimeout(() => {
-      if (isMounted && !initialSessionHandled) {
-        console.warn("AuthContext: fallback timer disparado, liberando tela.");
-        initialSessionHandled = true;
-        setLoading(false);
-      }
-    }, 5000);
-
-    // onAuthStateChange é a fonte ÚNICA de verdade.
-    // No Supabase v2+, ele dispara automaticamente um evento INITIAL_SESSION
-    // quando a sessão é recuperada do localStorage (inclusive após refresh).
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      (_event, currentSession) => {
         if (!isMounted) return;
 
-        try {
-          setSession(session);
-          setUser(session?.user || null);
+        // Apenas atualizar estado React — sem chamadas ao banco aqui
+        setSession(currentSession);
+        setUser(currentSession?.user || null);
 
-          if (session?.user) {
-            await fetchProfile(session.user.id);
-          } else {
-            setProfile(null);
-          }
-        } catch (err) {
-          console.error("Erro no onAuthStateChange:", err);
-        } finally {
-          if (isMounted) {
-            initialSessionHandled = true;
-            setLoading(false);
-          }
+        if (!currentSession?.user) {
+          setProfile(null);
         }
+
+        setLoading(false);
       }
     );
 
-    // Segurança extra: se o onAuthStateChange não disparar em 2s,
-    // tentamos recuperar a sessão manualmente via getSession
-    const getSessionFallback = setTimeout(async () => {
-      if (isMounted && !initialSessionHandled) {
-        try {
-          const { data } = await supabase.auth.getSession();
-          if (isMounted && !initialSessionHandled) {
-            const s = data?.session;
-            setSession(s || null);
-            setUser(s?.user || null);
-            if (s?.user) {
-              await fetchProfile(s.user.id);
-            }
-            initialSessionHandled = true;
-            setLoading(false);
-          }
-        } catch (err) {
-          console.error("Erro no getSession fallback:", err);
-          if (isMounted) {
-            initialSessionHandled = true;
-            setLoading(false);
-          }
-        }
+    // Fallback: se o onAuthStateChange não disparar em 3s, libera a tela
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted) {
+        setLoading(false);
       }
-    }, 2000);
+    }, 3000);
 
     return () => {
       isMounted = false;
       clearTimeout(fallbackTimer);
-      clearTimeout(getSessionFallback);
       subscription.unsubscribe();
     };
   }, []);
 
+  // ─── Buscar perfil FORA do callback de auth ──────────────────────────
+  // Isso evita o deadlock do Supabase JS v2. Roda em useEffect separado
+  // sempre que o user mudar.
+  useEffect(() => {
+    if (!user) {
+      setProfile(null);
+      return;
+    }
+
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+    const accessToken = session?.access_token;
+
+    // Busca via REST direto para evitar possível deadlock no client
+    fetch(`${supabaseUrl}/rest/v1/profiles?id=eq.${user.id}&select=*`, {
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${accessToken || supabaseKey}`,
+        'Content-Type': 'application/json',
+      },
+    })
+      .then(res => res.ok ? res.json() : Promise.reject(res))
+      .then(data => {
+        if (data && data.length > 0) {
+          setProfile(data[0]);
+        } else {
+          setProfile(null);
+        }
+      })
+      .catch(err => {
+        console.error("Erro ao buscar perfil:", err);
+        setProfile(null);
+      });
+  }, [user, session]);
+
+  // ─── Ações de autenticação ───────────────────────────────────────────
   const login = async (email, password) => {
     return await authLogin(email, password);
   };

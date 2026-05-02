@@ -5,7 +5,7 @@ import { createProject } from "../../modules/projects/infrastructure/projectSupa
 import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function ProjectForm() {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [project, setProject] = useState({
     name: "",
     budget: "",
@@ -19,7 +19,7 @@ function ProjectForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    if (!user) {
+    if (!user || !session) {
       alert("Você precisa estar logado!");
       return;
     }
@@ -32,7 +32,7 @@ function ProjectForm() {
     };
 
     try {
-      await createProject(projectToInsert);
+      await createProject(projectToInsert, session.access_token);
       alert("✅ Projeto criado com sucesso!");
       setProject({ name: "", budget: "", category: "" });
     } catch (error) {

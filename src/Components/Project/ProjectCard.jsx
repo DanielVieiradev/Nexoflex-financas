@@ -4,12 +4,12 @@ import { deleteProject } from "../../modules/projects/infrastructure/projectSupa
 import { useAuth } from "../../modules/auth/application/AuthContext";
 
 function ProjectCard({ id, name, budget, category, onRemove }) {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   const handleRemove = async () => {
     try {
-      if (!user) return;
-      await deleteProject(id, user.id);
+      if (!user || !session) return;
+      await deleteProject(id, user.id, session.access_token);
       onRemove(id);
     } catch (error) {
       console.error("Erro ao excluir projeto:", error);

@@ -7,7 +7,7 @@ import styles from "./DetalhesProjeto.module.css";
 
 function DetalhesProjeto() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   const [projeto, setProjeto] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -21,12 +21,12 @@ function DetalhesProjeto() {
   }
 
   useEffect(() => {
-    if (!user) return;
-    getProject(id, user.id)
+    if (!user || !session) return;
+    getProject(id, user.id, session.access_token)
       .then((data) => {
         setProjeto({
           ...data,
-          services: data.services || [] // Ensures services is always an array
+          services: data.services || []
         });
         setLoading(false);
       })
@@ -34,12 +34,11 @@ function DetalhesProjeto() {
         console.error(err);
         setLoading(false);
       });
-  }, [id, user]);
+  }, [id, user, session]);
 
   if (loading) return <p>Carregando...</p>;
   if (!projeto) return <p>Projeto não encontrado.</p>;
 
-  // Ensure budget and cost are treated as numbers
   const totalGasto =
     projeto.services?.reduce((acc, s) => acc + Number(s.cost), 0) || 0;
 
@@ -55,12 +54,11 @@ function DetalhesProjeto() {
       return;
     }
 
-    // Only update the budget field
     const novoBudget = Number(projeto.budget) + valor;
 
-    if (!user) return;
+    if (!user || !session) return;
 
-    updateProject(id, user.id, { budget: novoBudget })
+    updateProject(id, user.id, { budget: novoBudget }, session.access_token)
       .then(() => {
         setProjeto({ ...projeto, budget: novoBudget });
         setNovoOrcamento("");
@@ -84,10 +82,9 @@ function DetalhesProjeto() {
     const novoServico = { ...service, id: safeId };
     const novosServicos = [...projeto.services, novoServico];
 
-    if (!user) return;
+    if (!user || !session) return;
 
-    // Update the services JSON column
-    updateProject(id, user.id, { services: novosServicos })
+    updateProject(id, user.id, { services: novosServicos }, session.access_token)
       .then(() => {
         setProjeto({ ...projeto, services: novosServicos });
         showToast("Serviço adicionado!");
@@ -103,9 +100,9 @@ function DetalhesProjeto() {
       (s) => s.id !== serviceId
     );
 
-    if (!user) return;
+    if (!user || !session) return;
 
-    updateProject(id, user.id, { services: servicesAtualizados })
+    updateProject(id, user.id, { services: servicesAtualizados }, session.access_token)
       .then(() => {
         setProjeto({ ...projeto, services: servicesAtualizados });
         showToast("Serviço removido!");
