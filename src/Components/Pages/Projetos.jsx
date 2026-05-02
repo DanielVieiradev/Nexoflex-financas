@@ -10,7 +10,6 @@ import {
   deleteTransactionApi,
 } from "../../core/infrastructure/supabaseRestApi";
 
-// ─── Categorias disponíveis ────────────────────────────────────────────
 const CATEGORIES = [
   'Moradia',
   'Alimentação/Mercado',
@@ -24,7 +23,6 @@ function Projetos() {
   const [transactions, setTransactions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('Todas');
 
-  // Helper para agrupar meses
   const getUniqueMonths = (txs) => {
     const months = txs.map(t => t.date.substring(0, 7));
     const currentMonth = new Date().toISOString().substring(0, 7);
@@ -68,12 +66,15 @@ function Projetos() {
   });
   // Filtrar por mês e depois por categoria
   const monthFiltered = transactions.filter(t => t.date.substring(0, 7) === selectedMonth);
-  const filteredTransactions = selectedCategory === 'Todas'
-    ? monthFiltered
-    : monthFiltered.filter(t => t.category === selectedCategory);
+  const filteredTransactions = (() => {
+    if (selectedCategory === 'Todas') return monthFiltered;
+    if (selectedCategory === '__income__') return monthFiltered.filter(t => t.type === 'income');
+    if (selectedCategory === '__expense__') return monthFiltered.filter(t => t.type === 'expense');
+    return monthFiltered.filter(t => t.category === selectedCategory);
+  })();
 
-  const totalIncome = filteredTransactions.filter(t => t.type === 'income').reduce((acc, t) => acc + t.value, 0);
-  const totalExpense = filteredTransactions.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.value, 0);
+  const totalIncome = monthFiltered.filter(t => t.type === 'income').reduce((acc, t) => acc + t.value, 0);
+  const totalExpense = monthFiltered.filter(t => t.type === 'expense').reduce((acc, t) => acc + t.value, 0);
   const balance = totalIncome - totalExpense;
 
   const formatCurrency = (value) => {
@@ -219,6 +220,18 @@ function Projetos() {
                 {cat}
               </button>
             ))}
+            <button
+              className={`${styles.categoryTab} ${styles.incomeTab} ${selectedCategory === '__income__' ? styles.activeCategoryTab : ''}`}
+              onClick={() => setSelectedCategory('__income__')}
+            >
+              Total de Entradas
+            </button>
+            <button
+              className={`${styles.categoryTab} ${styles.expenseTab} ${selectedCategory === '__expense__' ? styles.activeCategoryTab : ''}`}
+              onClick={() => setSelectedCategory('__expense__')}
+            >
+              Total de Despesas
+            </button>
           </div>
         </div>
       </div>

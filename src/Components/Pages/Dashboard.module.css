@@ -120,6 +120,51 @@
   border-color: #111827;
 }
 
+/* Special type-filter tabs */
+.incomeTab {
+  border-color: rgba(0, 128, 90, 0.3);
+  color: #00805a;
+}
+
+.incomeTab:hover {
+  background: rgba(0, 128, 90, 0.08);
+  border-color: rgba(0, 128, 90, 0.5);
+  color: #006043;
+}
+
+.incomeTab.activeCategoryTab {
+  background: #00805a;
+  border-color: #00805a;
+  color: #FFFFFF;
+}
+
+.incomeTab.activeCategoryTab:hover {
+  background: #006043;
+  border-color: #006043;
+}
+
+.expenseTab {
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #EF4444;
+}
+
+.expenseTab:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #DC2626;
+}
+
+.expenseTab.activeCategoryTab {
+  background: #EF4444;
+  border-color: #EF4444;
+  color: #FFFFFF;
+}
+
+.expenseTab.activeCategoryTab:hover {
+  background: #DC2626;
+  border-color: #DC2626;
+}
+
 
 .dashboardGrid {
   display: grid;
