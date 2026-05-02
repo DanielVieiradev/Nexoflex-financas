@@ -1,25 +1,10 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import styles from "./Home.module.css";
 import { FiTrendingUp, FiTarget, FiShield, FiArrowRight } from "react-icons/fi";
 
 function Home() {
-  const [isDarkMode, setIsDarkMode] = useState(
-    document.body.classList.contains("dark-mode") ||
-    localStorage.getItem("theme") === "dark" ||
-    (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)
-  );
-
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      setIsDarkMode(document.body.classList.contains("dark-mode"));
-    });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div className={`${styles.landingContainer} ${isDarkMode ? styles.dark : ""}`}>
+    <div className={styles.landingContainer}>
       {/* Hero Section */}
       <section className={styles.heroSection}>
         {/* Subtle decorative elements */}
