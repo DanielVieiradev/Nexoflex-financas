@@ -5,7 +5,8 @@
   align-items: center;
   width: 100%;
   min-height: 100vh;
-  background-color: #F9FAFB; /* Clean background */
+  background-color: #F9FAFB;
+  /* Clean background */
   font-family: 'Inter', 'Segoe UI', sans-serif;
   padding-bottom: 4rem;
 }
@@ -176,7 +177,8 @@
   background: #006043;
 }
 
-.transactionsSection, .goalsSection {
+.transactionsSection,
+.goalsSection {
   background: #FFFFFF;
   border-radius: 12px;
   padding: 1.5rem;
@@ -193,7 +195,8 @@
   border-collapse: collapse;
 }
 
-.transactionsTable th, .transactionsTable td {
+.transactionsTable th,
+.transactionsTable td {
   padding: 1rem;
   text-align: left;
   border-bottom: 1px solid #f3f4f6;
@@ -337,16 +340,17 @@
     gap: 1rem;
     margin-bottom: 2rem;
   }
-  
+
   .headerArea {
     padding: 2rem 1rem 1.5rem;
   }
-  
+
   .headerArea h1 {
     font-size: 1.6rem;
   }
 
-  .transactionsSectionMobile, .goalsSectionMobile {
+  .transactionsSectionMobile,
+  .goalsSectionMobile {
     padding: 1rem;
     border-radius: 12px;
   }
@@ -366,10 +370,14 @@
 
   /* Table to Card Stack Transformation for Mobile */
   .transactionsTable thead {
-    display: none; /* Hide standard headers */
+    display: none;
+    /* Hide standard headers */
   }
 
-  .transactionsTable, .transactionsTable tbody, .transactionsTable tr, .transactionsTable td {
+  .transactionsTable,
+  .transactionsTable tbody,
+  .transactionsTable tr,
+  .transactionsTable td {
     display: block;
     width: 100%;
   }
@@ -380,7 +388,7 @@
     border: 1px solid #E5E7EB;
     border-radius: 12px;
     padding: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
   }
 
   .transactionsTable td {
@@ -426,7 +434,8 @@
 
   .goalPercentage {
     font-size: 1.1rem;
-    margin-left: auto !important; /* Forces percentage to the right even if buttons wrap */
+    margin-left: auto !important;
+    /* Forces percentage to the right even if buttons wrap */
   }
 
   /* Modals Mobile Adaptation */
@@ -434,12 +443,13 @@
     padding: 1.5rem;
     margin: 1rem;
     width: calc(100% - 2rem);
-    align-self: flex-end; /* Drop modal from bottom on mobile */
+    align-self: flex-end;
+    /* Drop modal from bottom on mobile */
     margin-bottom: 0;
     border-radius: 16px 16px 0 0;
     max-height: 85vh;
   }
-  
+
   .modalOverlay {
     align-items: flex-end;
     padding: 0;
@@ -451,7 +461,8 @@
     margin-top: 1.5rem;
   }
 
-  .cancelButton, .saveButton {
+  .cancelButton,
+  .saveButton {
     width: 100%;
     padding: 1rem;
     font-size: 1.05rem;

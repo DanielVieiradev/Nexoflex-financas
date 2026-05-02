@@ -131,19 +131,19 @@ function Projetos() {
         .insert([newTransaction]);
       if (error) console.error("Erro ao inserir:", error);
     }
-    
+
     await fetchTransactions();
 
     const transactionMonth = newTransaction.date.substring(0, 7);
     if (transactionMonth !== selectedMonth) {
       setSelectedMonth(transactionMonth);
     }
-    
+
     setIsModalOpen(false);
   };
 
   const handleDelete = async (id) => {
-    if(window.confirm('Tem certeza que deseja excluir esta transação?')){
+    if (window.confirm('Tem certeza que deseja excluir esta transação?')) {
       const { error } = await supabase.from('transactions').delete().eq('id', id);
       if (error) {
         console.error("Erro ao deletar:", error);
@@ -158,7 +158,7 @@ function Projetos() {
       .from('transactions')
       .update({ favorite: !transaction.favorite })
       .eq('id', transaction.id);
-      
+
     if (error) {
       console.error("Erro ao favoritar:", error);
     } else {
@@ -179,10 +179,10 @@ function Projetos() {
       <div className={styles.headerArea}>
         <h1>Gestão de Fluxo de Caixa</h1>
         <p>Acompanhe todas as suas entradas, saídas e saldo atualizado.</p>
-        
+
         <div className={styles.monthSelector}>
           {availableMonths.map(month => (
-            <button 
+            <button
               key={month}
               className={`${styles.monthTab} ${selectedMonth === month ? styles.activeMonthTab : ''}`}
               onClick={() => setSelectedMonth(month)}
@@ -203,7 +203,7 @@ function Projetos() {
             </div>
             <h2>{formatCurrency(totalIncome)}</h2>
           </div>
-          
+
           <div className={styles.dashboardCard}>
             <div className={styles.cardHeader}>
               <span>Total Saídas</span>
@@ -229,7 +229,7 @@ function Projetos() {
               <FiPlus /> Nova Transação
             </button>
           </div>
-          
+
           <div className={styles.tableContainer}>
             <table className={styles.transactionsTable}>
               <thead>
@@ -261,8 +261,8 @@ function Projetos() {
                       </td>
                       <td data-label="Ações">
                         <div className={styles.rowActions}>
-                          <button 
-                            className={`${styles.iconButton} ${t.favorite ? styles.favorite : ''}`} 
+                          <button
+                            className={`${styles.iconButton} ${t.favorite ? styles.favorite : ''}`}
                             onClick={() => toggleFavorite(t)}
                             title={t.favorite ? "Remover dos favoritos" : "Favoritar"}
                           >
@@ -299,7 +299,7 @@ function Projetos() {
                 <FiX />
               </button>
             </div>
-            
+
             <form onSubmit={handleSave}>
               <div className={styles.formGroup}>
                 <label>Tipo de Transação</label>

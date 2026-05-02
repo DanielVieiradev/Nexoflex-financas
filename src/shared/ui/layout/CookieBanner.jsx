@@ -22,7 +22,7 @@ const CookieBanner = () => {
     <div className={styles.banner}>
       <div className={styles.content}>
         <p>
-          <strong>Nós valorizamos sua privacidade! 🍪</strong><br/>
+          <strong>Nós valorizamos sua privacidade! 🍪</strong><br />
           Usamos cookies para garantir que você tenha a melhor experiência na nossa plataforma (como manter você logado), em conformidade com a <strong>LGPD</strong>.
         </p>
         <div className={styles.buttons}>
