@@ -23,29 +23,31 @@ function App() {
     <Router>
       <Navbar />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/contato" element={<Contato />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Login isRegister={true} />} />
-      </Routes>
-
-      <Container customClass="min-height">
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', width: '100%' }}>
         <Routes>
-          <Route path="/empresa" element={<Empresa />} />
-
-          {/* Rotas Protegidas */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/Projetos" element={<Projetos />} />
-            <Route path="/Projetos/Criar" element={<CriarProjeto />} />
-            <Route path="/editar-projeto/:id" element={<EditarProjeto />} />
-            <Route path="/projeto/:id" element={<DetalhesProjeto />} />
-            <Route path="/dashboard" element={<DashboardBasico />} />
-          </Route>
+          <Route path="/" element={<Home />} />
+          <Route path="/contato" element={<Contato />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Login isRegister={true} />} />
         </Routes>
-      </Container>
+
+        <Container customClass="min-height">
+          <Routes>
+            <Route path="/empresa" element={<Empresa />} />
+
+            {/* Rotas Protegidas */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/Projetos" element={<Projetos />} />
+              <Route path="/Projetos/Criar" element={<CriarProjeto />} />
+              <Route path="/editar-projeto/:id" element={<EditarProjeto />} />
+              <Route path="/projeto/:id" element={<DetalhesProjeto />} />
+              <Route path="/dashboard" element={<DashboardBasico />} />
+            </Route>
+          </Routes>
+        </Container>
+      </main>
 
       <CookieBanner />
       <Footer />
