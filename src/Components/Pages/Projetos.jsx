@@ -16,12 +16,14 @@ const CATEGORIES = [
   'Lazer',
   'Contas Fixas',
   'Emergência',
+  'Pagamento/Salário',
 ];
 
 function Projetos() {
   const { user, loading: authLoading, session } = useAuth();
   const [transactions, setTransactions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('Todas');
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
   const getUniqueMonths = (txs) => {
     const months = txs.map(t => t.date.substring(0, 7));
@@ -203,11 +205,17 @@ function Projetos() {
 
         {/* Filtro por Categoria */}
         <div className={styles.categoryFilter}>
-          <FiGrid className={styles.categoryFilterIcon} />
-          <div className={styles.categoryTabs}>
+          <div 
+            className={styles.mobileCategoryToggle} 
+            onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+          >
+            <FiGrid className={styles.categoryFilterIcon} />
+            <span className={styles.mobileCategoryLabel}>Categorias</span>
+          </div>
+          <div className={`${styles.categoryTabs} ${isCategoryMenuOpen ? styles.open : ''}`}>
             <button
               className={`${styles.categoryTab} ${selectedCategory === 'Todas' ? styles.activeCategoryTab : ''}`}
-              onClick={() => setSelectedCategory('Todas')}
+              onClick={() => { setSelectedCategory('Todas'); setIsCategoryMenuOpen(false); }}
             >
               Todas
             </button>
@@ -215,20 +223,20 @@ function Projetos() {
               <button
                 key={cat}
                 className={`${styles.categoryTab} ${selectedCategory === cat ? styles.activeCategoryTab : ''}`}
-                onClick={() => setSelectedCategory(cat)}
+                onClick={() => { setSelectedCategory(cat); setIsCategoryMenuOpen(false); }}
               >
                 {cat}
               </button>
             ))}
             <button
               className={`${styles.categoryTab} ${styles.incomeTab} ${selectedCategory === '__income__' ? styles.activeCategoryTab : ''}`}
-              onClick={() => setSelectedCategory('__income__')}
+              onClick={() => { setSelectedCategory('__income__'); setIsCategoryMenuOpen(false); }}
             >
               Total de Entradas
             </button>
             <button
               className={`${styles.categoryTab} ${styles.expenseTab} ${selectedCategory === '__expense__' ? styles.activeCategoryTab : ''}`}
-              onClick={() => setSelectedCategory('__expense__')}
+              onClick={() => { setSelectedCategory('__expense__'); setIsCategoryMenuOpen(false); }}
             >
               Total de Despesas
             </button>
